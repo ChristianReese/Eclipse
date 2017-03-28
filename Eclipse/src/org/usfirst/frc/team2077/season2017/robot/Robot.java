@@ -10,6 +10,7 @@ import org.usfirst.frc.team2077.season2017.subsystems.Eclipse;
 import org.usfirst.frc.team2077.season2017.subsystems.GearSetter;
 import org.usfirst.frc.team2077.season2017.subsystems.MecanumDrive;
 import org.usfirst.frc.team2077.season2017.subsystems.MecanumHardware;
+import org.usfirst.frc.team2077.season2017.subsystems.PizzaBot;
 import org.usfirst.frc.team2077.season2017.subsystems.Vision;
 
 import edu.wpi.first.wpilibj.IterativeRobot;
@@ -75,25 +76,46 @@ public class Robot extends IterativeRobot {
 		if(!prefs.containsKey(RobotMap.SLOW_CLIMBER_TIME_KEY))
 			prefs.putDouble(RobotMap.SLOW_CLIMBER_TIME_KEY, RobotMap.SLOW_CLIMBER_TIME_DEFAULT);
 
-		//hardware_ = new PizzaBot();
-		hardware_ = new Eclipse();
+		switch( RobotMap.ROBOT_PLATFORM )
+		{
+		case RP_ECLIPSE:
+			hardware_ = new Eclipse();
+			break;
+		case RP_PIZZA:
+			hardware_ = new PizzaBot();
+			break;
+		default:
+			hardware_ = new Eclipse();
+		}
 		
 		climber = new Climber();
 		gearSetter = new GearSetter();
 		ballCollector = new BallCollector();
-		vision_ = new Vision("10.20.77.14");
+		
+		switch( RobotMap.ROBOT_PLATFORM )
+		{
+		case RP_ECLIPSE:
+			vision_ = new Vision("10.20.77.14");
+			break;
+		case RP_PIZZA:
+			vision_ = new Vision("10.20.76.14");
+			break;
+		default:
+			vision_ = new Vision("10.20.77.14");
+		}
+		
 		drive_ = new MecanumDrive(hardware_);
 		
 		gyro_ = hardware_.getAngleSensor().gyro_;
 		operatorInterface_ = new OperatorInterface();
     		
-    		Robot.gearSetter.gearSetterEnc.reset();
-        	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
+    		Robot.gearSetter.resetGearSetterEncoder();
+        	SmartDashboard.putNumber("Gear Setter", Robot.gearSetter.getGearSetterEncoderDistance());
         	
     		isTeleop = isOperatorControl(); 
 	
-    		Robot.gearSetter.gearSetterEnc.reset();
-        	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
+    		Robot.gearSetter.resetGearSetterEncoder();
+        	SmartDashboard.putNumber("Gear Setter", Robot.gearSetter.getGearSetterEncoderDistance());
         	
     		autoChooser = new SendableChooser();
     		

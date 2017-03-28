@@ -37,7 +37,7 @@ public class AdvanceTowardTargetSnapshot extends MoveRelative {
 
     @Override
     protected boolean isFinished() {
-    	boolean superResult = super.isFinished() || (!GearSetter.gearFlapLeft.get() && !GearSetter.gearFlapRight.get());
+    	boolean superResult = super.isFinished() || (!Robot.gearSetter.getGearFlapLeftValue() && !Robot.gearSetter.getGearFlapRightValue());
     	
 //    	if (superResult)
 //    	{

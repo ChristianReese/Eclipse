@@ -22,22 +22,22 @@ public class Spin extends Command {
 
     // Called just before this Command runs the first time
     protected void initialize() {
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute(){
     	
-    	if (Climber.checkCurrent()) {
+    	if (Robot.climber.checkCurrent()) {
     		return;
     	}
     	
-     	Robot.climber.Spin(spinMultiplier);
+     	Robot.climber.spin(spinMultiplier);
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-    	if (Climber.checkCurrent()) {
+    	if (Robot.climber.checkCurrent()) {
     		return true;
     	}
         /*if(Climber.climberStopper.get())
@@ -49,12 +49,12 @@ public class Spin extends Command {
 
     // Called once after isFinished returns true
     protected void end() {
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
     }
 }

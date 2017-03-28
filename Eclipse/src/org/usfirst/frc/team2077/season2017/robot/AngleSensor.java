@@ -26,7 +26,7 @@ public class AngleSensor {
 
 		AHRS navX = new AHRS(SPI.Port.kMXP, (byte)200);
 		navX.setPIDSourceType(PIDSourceType.kDisplacement);
-		if (false) {
+		if ( ( RobotMap.ROBOT_PLATFORM == RobotMap.RobotPlatform.RP_PIZZA ) && !navX.isConnected() ) {
 		//if (!navX.isConnected()) { // no NavX hardware
 			System.out.println("NavX not detected.");
 			navX = null;

@@ -30,8 +30,8 @@ public class GearEjectIfOnPin extends Command {
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
     	if (Robot.gearSetter.isOnPin()) {
-        	Robot.gearSetter.Set();
-        	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
+        	Robot.gearSetter.set();
+        	SmartDashboard.putNumber("Gear Setter", Robot.gearSetter.getGearSetterEncoderDistance());
     	}
     	Robot.drive_.setVelocity(-12, 0,  0);   }
 

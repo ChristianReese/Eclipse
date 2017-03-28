@@ -25,22 +25,22 @@ public class PushPlate extends TimedCommand {
     	Preferences prefs = Preferences.getInstance();
 
 		setTimeout(.5/*prefs.getDouble(RobotMap.SLOW_CLIMBER_TIME_KEY, RobotMap.SLOW_CLIMBER_TIME_DEFAULT)*/);
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
     }
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	if (Climber.checkCurrent()) {
+    	if (Robot.climber.checkCurrent()) {
     		return;
     	}
     	
-    	Robot.climber.PushPlate();
+    	Robot.climber.pushPlate();
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished(){
     	
-    	if (Climber.checkCurrent()) {
+    	if (Robot.climber.checkCurrent()) {
         	return true;
         }
         
@@ -54,13 +54,13 @@ public class PushPlate extends TimedCommand {
 
     // Called once after isFinished returns true
     protected void end() {
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
     }
 
     // Called when another command which requires one or more of the same
     // subsystems is scheduled to run
     protected void interrupted() {
-    	Robot.climber.NoSpin();
+    	Robot.climber.noSpin();
 
     }
 }

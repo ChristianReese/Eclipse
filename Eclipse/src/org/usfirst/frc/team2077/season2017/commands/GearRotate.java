@@ -25,14 +25,14 @@ public class GearRotate extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.gearSetter.Set();
-    	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
+    	Robot.gearSetter.set();
+    	SmartDashboard.putNumber("Gear Setter", Robot.gearSetter.getGearSetterEncoderDistance());
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
     	if((!OperatorInterface.gearRotation.get() && Robot.isTeleop) || 
-    			(Robot.gearSetter.gearSetterEnc.getDistance() > 485 && !Robot.isTeleop))
+    			(Robot.gearSetter.getGearSetterEncoderDistance() > 485 && !Robot.isTeleop))
     	{
     		return true;
     	}

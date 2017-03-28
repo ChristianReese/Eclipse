@@ -1,6 +1,7 @@
 package org.usfirst.frc.team2077.season2017.subsystems;
 
 import org.usfirst.frc.team2077.season2017.robot.Robot;
+import org.usfirst.frc.team2077.season2017.robot.RobotMap;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.PowerDistributionPanel;
@@ -12,22 +13,35 @@ import edu.wpi.first.wpilibj.command.Subsystem;
  *
  */
 public class Climber extends Subsystem {
-	public static Talon spinningDevice = new Talon(0);
-	public static DigitalInput climberStopper = new DigitalInput(2);
+	private Talon spinningDevice;
+	private DigitalInput climberStopper;
 	
-	private static PowerDistributionPanel pdp = new PowerDistributionPanel(0); // TODO: check CAN ID
-	private static int pdpCircuit = 4;
-	private static double currentLimit = 30;
-	private static boolean limitExceeded = false; // fail-safe hack in case limit switch is missed
-	private static int sampleCount = 32;
-	private static double sampleSum = 0;
-	private static int sampleIndex = 0;
-	private static double[] sample = new double[sampleCount];
+	private PowerDistributionPanel pdp = new PowerDistributionPanel(0); // TODO: check CAN ID
+	private int pdpCircuit = 4;
+	private double currentLimit = 30;
+	private boolean limitExceeded = false; // fail-safe hack in case limit switch is missed
+	private int sampleCount = 32;
+	private double sampleSum = 0;
+	private int sampleIndex = 0;
+	private double[] sample = new double[sampleCount];
 	
+	public Climber() {
+		super();
+
+		spinningDevice = null;
+		climberStopper = null;
+
+		if ( RobotMap.ROBOT_PLATFORM == RobotMap.RobotPlatform.RP_ECLIPSE )
+		{
+			spinningDevice = new Talon(0);
+			climberStopper = new DigitalInput(2);
+		}
+	}
+
 	/**
 	* @return true if climber current limit exceeded
 	 */
-	public static boolean checkCurrent() {
+	public boolean checkCurrent() {
 		if (limitExceeded) {
 			return true;
 		}
@@ -52,25 +66,34 @@ public class Climber extends Subsystem {
         //setDefaultCommand(new MySpecialCommand());
     }
     
-    public static void NoSpin()
+    public void noSpin()
     {
-    	spinningDevice.set(0);
+    	if ( spinningDevice != null )
+    	{
+        	spinningDevice.set(0);
+    	}
     }
     
-    public static void Spin(double spinMultiplier)
+    public void spin(double spinMultiplier)
     {
-    	Preferences prefs = Preferences.getInstance();
-
-		spinningDevice.set(prefs.getDouble("Top Climber Speed", -1)*spinMultiplier);
+    	if ( spinningDevice != null )
+    	{
+	    	Preferences prefs = Preferences.getInstance();
+	
+			spinningDevice.set(prefs.getDouble("Top Climber Speed", -1)*spinMultiplier);
+    	}
     }
     
-    public static void PushPlate()
+    public void pushPlate()
     {
-    	Preferences prefs = Preferences.getInstance();
-    	
-    	//prefs.getDouble("Push Plate Climber Speed", -1)
-    	
-		spinningDevice.set(-.5);
+    	if ( spinningDevice != null )
+    	{
+	    	Preferences prefs = Preferences.getInstance();
+	    	
+	    	//prefs.getDouble("Push Plate Climber Speed", -1)
+	    	
+			spinningDevice.set(-.5);
+    	}
     }
 }
 

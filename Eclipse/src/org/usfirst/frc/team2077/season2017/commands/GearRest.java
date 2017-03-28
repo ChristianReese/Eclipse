@@ -25,14 +25,14 @@ public class GearRest extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.gearSetter.Rest();
-    	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
+    	Robot.gearSetter.rest();
+    	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.getGearSetterEncoderDistance());
     }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-    	if(Robot.gearSetter.gearSetterEnc.getDistance() - 
-    			(int)(Robot.gearSetter.gearSetterEnc.getDistance()/470) * 470 <= 2)
+    	if(Robot.gearSetter.getGearSetterEncoderDistance() - 
+    			(int)(Robot.gearSetter.getGearSetterEncoderDistance()/470) * 470 <= 2)
     	{
     		return true;
     	}

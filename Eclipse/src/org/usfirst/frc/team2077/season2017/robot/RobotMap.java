@@ -17,9 +17,15 @@ public class RobotMap {
 	// public static int rangefinderPort = 1;
 	// public static int rangefinderModule = 1;
 	
+	public static enum RobotPlatform {
+		RP_ECLIPSE, RP_PIZZA
+	}
+	
 //	public static double P = .15;
 //	public static double I = .0005;
 //	public static double F = .12;
+	
+	public static final RobotPlatform ROBOT_PLATFORM = RobotPlatform.RP_ECLIPSE;
 
 	public static final String ADVANCE_LENGTH_MULTIPLIER_KEY = "Auto-Targeting Advance Length Multiplier";
 	public static final String ROTATION_MULTIPLIER_KEY = "Auto-Targeting Rotate Multiplier";
