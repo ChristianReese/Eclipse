@@ -25,7 +25,7 @@ public class GearRest extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.gearSetter.Rest();
+    	Robot.gearSetter.Set(-.2);
     	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
     }
 

@@ -29,15 +29,17 @@ public class GearEjectIfOnPin extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	if (Robot.gearSetter.isOnPin()) {
-        	Robot.gearSetter.Set();
+    	if ((Robot.gearSetter.isOnPin() && !Robot.isTeleop) || (Robot.isTeleop && Robot.gearSetter.isOnPin() && Robot.operatorInterface_.gearRotation.get())) {
+        	Robot.gearSetter.Set(1);
         	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
     	}
-    	Robot.drive_.setVelocity(-12, 0,  0);   }
+    	if(!Robot.isTeleop)
+    		Robot.drive_.setVelocity(-12, 0,  0);   
+    }
 
     // Make this return true when this Command no longer needs to run execute()
     protected boolean isFinished() {
-    	if (Timer.getFPGATimestamp() - startTime < 1.0) {
+    	if ((Timer.getFPGATimestamp() - startTime < 1.0) || (Robot.isTeleop && Robot.operatorInterface_.gearRotation.get())) {
     		return false;
     	}
     	return true;

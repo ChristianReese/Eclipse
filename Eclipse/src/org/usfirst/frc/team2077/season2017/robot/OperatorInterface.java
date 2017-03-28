@@ -1,9 +1,11 @@
 package org.usfirst.frc.team2077.season2017.robot;
 
+import org.usfirst.frc.team2077.season2017.autonomous.AutoCenterPos;
 import org.usfirst.frc.team2077.season2017.commands.CenterToTargetSnapshot;
 import org.usfirst.frc.team2077.season2017.commands.Climb;
 import org.usfirst.frc.team2077.season2017.commands.Drop;
 import org.usfirst.frc.team2077.season2017.commands.FieldRelativeSwitch;
+import org.usfirst.frc.team2077.season2017.commands.GearEjectIfOnPin;
 import org.usfirst.frc.team2077.season2017.commands.GearRest;
 import org.usfirst.frc.team2077.season2017.commands.GearRotate;
 import org.usfirst.frc.team2077.season2017.commands.MoveRelative;
@@ -29,7 +31,7 @@ public class OperatorInterface {
 	
 	public static Button pickBallButton = new JoystickButton(joystick_,1),
 			dropBallButton = new JoystickButton(joystick_,19),
-			gearRotation = new JoystickButton(joystick_, 9),
+			gearRotation = new JoystickButton(joystick_, 2),
 			spinLift = new JoystickButton(joystick_,3),
 			slowSpinLift = new JoystickButton(joystick_,21),
 			smallTurn = new JoystickButton(xbox_,1),
@@ -37,7 +39,9 @@ public class OperatorInterface {
 			backupGearButton = new JoystickButton(xbox_,3),
 			switchDirectionButton = new JoystickButton(xbox_, 4),
 			shimyLeftButton = new JoystickButton(xbox_, 5),
-			shimyRightButton = new JoystickButton(xbox_, 6);
+			shimyRightButton = new JoystickButton(xbox_, 6),
+			visionTrackButton = new JoystickButton(xbox_, 24);
+			
 	
     public OperatorInterface()
     {
@@ -54,11 +58,13 @@ public class OperatorInterface {
 		pickBallButton.whenPressed(new PickUp());
 		dropBallButton.whenPressed(new Drop());
 		
-		gearRotation.whileHeld(new GearRotate());
+		//visionTrackButton.whileHeld(new AutoCenterPos());
+		
+		gearRotation.whileHeld(new GearEjectIfOnPin());
 		gearRotation.whenReleased(new GearRest());
 		
-		backupGearButton.whileHeld(new GearRotate());
-		backupGearButton.whenReleased(new GearRest());
+		//backupGearButton.whileHeld(new GearRotate());
+		//backupGearButton.whenReleased(new GearRest());
 		
 		spinLift.whileHeld(new Spin(1));
 		slowSpinLift.whileHeld(new Spin(.5));

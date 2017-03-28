@@ -16,20 +16,14 @@ public class GearSetter extends Subsystem {
 	private static final boolean GEAR_FLAP_TRIGGEREDPUSHED_STATE = false; // true if limits switches wired NO, false if wired NC
     // Put methods for controlling this subsystem
     // here. Call these from Commands.
-
     public void initDefaultCommand() {
         // Set the default command for a subsystem here.
         //setDefaultCommand(new MySpecialCommand());
     }
     
-    public void Set()
+    public void Set(double speed)
     {
-    	gearSetter.set(1);
-    }
-    
-    public void Rest()
-    {
-    	gearSetter.set(-.2);
+    	gearSetter.set(speed);
     }
     
     public void initial(){
@@ -38,6 +32,6 @@ public class GearSetter extends Subsystem {
     
     /** @return true iff the pin detector plate is pushed back */
     public boolean isOnPin() {
-    	return gearFlapLeft.get()==GEAR_FLAP_TRIGGEREDPUSHED_STATE || gearFlapLeft.get()==GEAR_FLAP_TRIGGEREDPUSHED_STATE;
+    	return gearFlapLeft.get()==GEAR_FLAP_TRIGGEREDPUSHED_STATE || gearFlapRight.get()==GEAR_FLAP_TRIGGEREDPUSHED_STATE;
     }
 }

@@ -25,7 +25,7 @@ public class GearRotate extends Command {
 
     // Called repeatedly when this Command is scheduled to run
     protected void execute() {
-    	Robot.gearSetter.Set();
+    	Robot.gearSetter.Set(1);
     	SmartDashboard.putDouble("Gear Setter", Robot.gearSetter.gearSetterEnc.getDistance());
     }
 
