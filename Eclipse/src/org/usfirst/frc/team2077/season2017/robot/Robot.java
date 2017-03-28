@@ -139,8 +139,8 @@ public class Robot extends IterativeRobot {
 	}
 	
 	public void teleopInit(){
-		//vision_.startGearLiftTracker(15);
-		vision_.stopGearLiftTracker();
+		vision_.startGearLiftTracker(15); // TODO: find out if disabledInit gets called between auto and teleop.
+		//vision_.stopGearLiftTracker();
 		if (autoCommand != null) {
 			autoCommand.cancel();
 		}
