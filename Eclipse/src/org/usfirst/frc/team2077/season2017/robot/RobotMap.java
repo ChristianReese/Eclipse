@@ -20,6 +20,8 @@ public class RobotMap {
 //	public static double P = .15;
 //	public static double I = .0005;
 //	public static double F = .12;
+	
+	// (Sam's branch)
 
 	public static final String ADVANCE_LENGTH_MULTIPLIER_KEY = "Auto-Targeting Advance Length Multiplier";
 	public static final String ROTATION_MULTIPLIER_KEY = "Auto-Targeting Rotate Multiplier";
