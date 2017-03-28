@@ -9,33 +9,33 @@ import edu.wpi.first.wpilibj.PIDController;
 import edu.wpi.first.wpilibj.PIDOutput;
 import edu.wpi.first.wpilibj.Preferences;
 
-public class Eclipse implements MecanumHardware {
+public class PizzaBot implements MecanumHardware {
 
     public static Preferences preferences_ = Preferences.getInstance();
     
-    private static final double WHEEL_BASE = 24.0;
-    private static final double TRACK_WIDTH = 28.0;
-    private static final double WHEEL_RADIUS = 2.0;
-    private static final double MAXIMUM_SPEED = 130;
+    private static final double WHEEL_BASE = 17.5;
+    private static final double TRACK_WIDTH = 18.0;
+    private static final double WHEEL_RADIUS = 3.0;
+    private static final double MAXIMUM_SPEED = 70;
     private static final int ENCODER_COUNTS_PER_REVOLUTION = 8192;
-    private static final int[] WHEEL_DIRECTIONS = {-1, -1 ,1, 1};
-    private static final boolean INVERTING_GEARBOX = true;
+    private static final int[] WHEEL_DIRECTIONS = {1, 1 ,-1, -1};
+    private static final boolean INVERTING_GEARBOX = false;
+    
+    private static final double motorKP = preferences_.getDouble("PizzaBot_kPmotor", 0.6);
+    private static final double motorKI = preferences_.getDouble("PizzaBot_kImotor", 0.001);
+    private static final double motorKD = preferences_.getDouble("PizzaBot_kDmotor", 0.0);
+    private static final double motorKF = preferences_.getDouble("PizzaBot_kFmotor", 0.39);
 
-    private static final double motorKP = preferences_.getDouble("Eclipse_kPmotor", 0.15);
-    private static final double motorKI = preferences_.getDouble("Eclipse_kImotor", 0.0005);
-    private static final double motorKD = preferences_.getDouble("Eclipse_kDmotor", 0.0);
-    private static final double motorKF = preferences_.getDouble("Eclipse_kFmotor", 0.12);
-
-    private static final double angleKP = preferences_.getDouble("Eclipse_kPangle", 0.01); // Last drive tested at 0.1
-    private static final double angleKI = preferences_.getDouble("Eclipse_kIangle", 0.0);
-    private static final double angleKD = preferences_.getDouble("Eclipse_kDangle", 0.001);
-    private static final double angleKF = preferences_.getDouble("Eclipse_kFangle", 0.0);
+    private static final double angleKP = preferences_.getDouble("PizzaBot_kPangle", 0.01);
+    private static final double angleKI = preferences_.getDouble("PizzaBot_kIangle", 0.0);
+    private static final double angleKD = preferences_.getDouble("PizzaBot_kDangle", 0.001);
+    private static final double angleKF = preferences_.getDouble("PizzaBot_kFangle", 0.0);
 
     private final CANTalon[] motors_ = new CANTalon[4];
     private final AngleSensor angleSensor_ = new AngleSensor();
     private final PIDController headingPID_;
 
-    public Eclipse() {
+    public PizzaBot() {
 		for (int i = 0; i < 4; i++) {
 			motors_[i] = new CANTalon(i+1);
 			motors_[i].setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
