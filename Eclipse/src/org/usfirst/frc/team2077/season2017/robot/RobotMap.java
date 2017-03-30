@@ -25,7 +25,7 @@ public class RobotMap {
 //	public static double I = .0005;
 //	public static double F = .12;
 	
-	public static final RobotPlatform ROBOT_PLATFORM = RobotPlatform.RP_ECLIPSE;
+	public static final RobotPlatform ROBOT_PLATFORM = RobotPlatform.RP_PIZZA;//RP_ECLIPSE;
 
 	public static final String ADVANCE_LENGTH_MULTIPLIER_KEY = "Auto-Targeting Advance Length Multiplier";
 	public static final String ROTATION_MULTIPLIER_KEY = "Auto-Targeting Rotate Multiplier";
