@@ -36,5 +36,35 @@ public class RobotMap {
 	public static final double ROTATION_MULTIPLIER_DEFAULT = 0.5;
 	public static final double PLANE_TO_PEG_DISTANCE_DEFAULT = 8.0;
 	public static final double SLOW_CLIMBER_TIME_DEFAULT = 0.5;
+
+	public static final String HEADING_P_KEY = "Heading PID - P";
+	public static final String HEADING_I_KEY = "Heading PID - I";
+	public static final String HEADING_D_KEY = "Heading PID - D";
+	public static final String HEADING_F_KEY = "Heading PID - F";
+	
+	public static final double HEADING_DEFAULT_P = 0.01;
+	public static final double HEADING_DEFAULT_I = 0.0;
+	public static final double HEADING_DEFAULT_D = 0.001;
+	public static final double HEADING_DEFAULT_F = 0.0;
+
+	public static final String T2C_P_KEY = "T2C PID - P";
+	public static final String T2C_I_KEY = "T2C PID - I";
+	public static final String T2C_D_KEY = "T2C PID - D";
+	public static final String T2C_F_KEY = "T2C PID - F";
+
+	public static final double T2C_DEFAULT_P = 0.0;
+	public static final double T2C_DEFAULT_I = 0.0;
+	public static final double T2C_DEFAULT_D = 0.0;
+	public static final double T2C_DEFAULT_F = 0.0;
+
+	public static final String DIST_P_KEY = "Distance PID - P";
+	public static final String DIST_I_KEY = "Distance PID - I";
+	public static final String DIST_D_KEY = "Distance PID - D";
+	public static final String DIST_F_KEY = "Distance PID - F";
+
+	public static final double DIST_DEFAULT_P = 0.0;
+	public static final double DIST_DEFAULT_I = 0.0;
+	public static final double DIST_DEFAULT_D = 0.0;
+	public static final double DIST_DEFAULT_F = 0.0;
 	
 }

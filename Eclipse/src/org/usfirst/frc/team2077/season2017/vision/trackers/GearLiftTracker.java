@@ -2,9 +2,11 @@ package org.usfirst.frc.team2077.season2017.vision.trackers;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.List;
 
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfInt;
 import org.opencv.core.MatOfPoint;
 import org.opencv.core.MatOfPoint2f;
 import org.opencv.core.Point;
@@ -12,9 +14,16 @@ import org.opencv.core.Scalar;
 import org.opencv.core.Size;
 import org.opencv.imgproc.Imgproc;
 import org.usfirst.frc.team2077.season2017.vision.measurement.TargetTransform;
+import org.usfirst.frc.team2077.season2017.vision.trackers.CollinearLine;
+import org.usfirst.frc.team2077.season2017.vision.trackers.LineSegment;
+import org.usfirst.frc.team2077.season2017.vision.trackers.Polygon;
+import org.usfirst.frc.team2077.season2017.vision.trackers.TargetCandidate;
+import org.usfirst.frc.team2077.season2017.vision.trackers.Utility;
 
 class GearLiftTracker extends AxisCameraVisionTracker
 {
+	public static final boolean CAMERA_RUNNING_SIDEWAYS = false; // true on Eclipse @ MKE
+	
 	public static final double CAM_FRUSTUM_HORIZONTAL_ANGLE_DEG = 47.0;
 	public static final double CAM_FRUSTUM_VERTICAL_ANGLE_DEG = 35.0;
 	public static final double CAM_FRUSTUM_HORIZONTAL_ANGLE_TAN
@@ -95,22 +104,18 @@ class GearLiftTracker extends AxisCameraVisionTracker
 		Core.inRange(mat, 
 				new Scalar(THRESHOLD_DEFAULT_MIN1,THRESHOLD_DEFAULT_MIN2,THRESHOLD_DEFAULT_MIN3), 
 				new Scalar(THRESHOLD_DEFAULT_MAX1,THRESHOLD_DEFAULT_MAX2,THRESHOLD_DEFAULT_MAX3), thresholdMat);
-		
-		
-		ArrayList<Polygon> polygons = trackPolygons( mat, thresholdMat, CAMERA_DIAGONAL, DEBUG_DRAW );	
-		
-		ArrayList< CollinearLine > collinearLines = findCollinearLines( polygons );					
-		TargetCandidate targetCandidate = getTargetCandidate( collinearLines, CAMERA_DIAGONAL );
+
+		TargetCandidate targetCandidate = trackTarget( mat, thresholdMat, CAMERA_DIAGONAL, DEBUG_DRAW, DEBUG_DRAW );
 		
 		if ( targetCandidate != null )
 		{
-			targetFound = true;
-			
 			targetAngleToRobot = calculateTargetFwdToCameraAngle(targetCandidate);
 			robotAngleToTarget = calculateCameraFwdToTargetAngle(targetCandidate,
-					CAM_HEIGHT, false);
+					CAMERA_RUNNING_SIDEWAYS ? CAM_HEIGHT : CAM_WIDTH, !CAMERA_RUNNING_SIDEWAYS);
 			robotToTargetDistance = calculateCameraToTargetDistance(targetCandidate,
-					CAM_WIDTH, true);
+					CAM_WIDTH, CAM_HEIGHT, CAMERA_RUNNING_SIDEWAYS != targetCandidate.hasBothRectangles());
+			
+			targetFound = true;
 			
 			if ( DEBUG_DRAW )
 			{
@@ -119,8 +124,15 @@ class GearLiftTracker extends AxisCameraVisionTracker
 				printTargetFwdToCameraAngle( targetAngleToRobot, mat );
 				printCameraFwdToTargetAngle( robotAngleToTarget, mat );
 				printCameraToTargetDistance( robotToTargetDistance, mat );
-			}
+			}			
+			
+			//System.out.println( "Angle difference: " + targetCandidate.calculateAngleDifference() + " degrees" );
 		}
+
+		//elapsedTime = (double)( Core.getTickCount() - prevTickCount ) * 1000.0 / Core.getTickFrequency();
+		//System.out.print("time: ");
+		//System.out.printf("%.5f", elapsedTime);
+		//System.out.println(" ms");
 		
 		thresholdMat.release();
 		
@@ -205,13 +217,15 @@ class GearLiftTracker extends AxisCameraVisionTracker
 		
 		double targetCoordFromCenter = targetAxisCoord - ( cameraPixelLength / 2.0 );
 		
-		return ( C2T_MULTIPLIER * targetCoordFromCenter * camFrustumAngle / cameraPixelLength );
+		double signMultiplier = ( usingHorizontalAxis ? -1.0 : 1.0 );
+		
+		return ( C2T_MULTIPLIER * signMultiplier * targetCoordFromCenter * camFrustumAngle / cameraPixelLength );
 	}
 	
 	private static double calculateCameraToTargetDistance(TargetCandidate targetCandidate,
-			double cameraPixelLength, boolean usingHorizontalAxis)
+			double cameraPixelWidth, double cameraPixelHeight, boolean usingHorizontalAxis)
 	{
-		if ( ( targetCandidate == null ) || ( cameraPixelLength < 0.1 ) )
+		if ( ( targetCandidate == null ) || ( cameraPixelWidth < 0.1 ) || ( cameraPixelHeight < 0.1 ) )
 		{
 			return 0.0;
 		}
@@ -227,8 +241,8 @@ class GearLiftTracker extends AxisCameraVisionTracker
 			return 0.0;
 		}
 		
-		return ( DISTANCE_MULTIPLIER * GEAR_TARGET_HEIGHT_INCHES * cameraPixelLength
-				/ ( 2.0 * targetHeightAverage * camFrustumAngleTan ) );
+		return ( DISTANCE_MULTIPLIER * ( usingHorizontalAxis ? cameraPixelWidth : cameraPixelHeight )
+				/ ( 2.0 * targetCandidate.getNormalizedScale() * camFrustumAngleTan ) );
 	}
 	
 	/**
@@ -237,9 +251,9 @@ class GearLiftTracker extends AxisCameraVisionTracker
 	 */
 	private static void printTargetFwdToCameraAngle( double angle, Mat output )
 	{
-		Imgproc.putText(output, "T2C:" + new DecimalFormat("#.0").format(angle)+"d", 
+		Imgproc.putText(output, "T2C:" + new DecimalFormat("00.0").format(angle)+"d", 
 				new Point( TEXT_X_OFFSET, TEXT_Y_OFFSET + output.height() / 12.0), 
-				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.green ), TEXT_THICKNESS );
+				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.white ), TEXT_THICKNESS );
 	}
 	
 	/**
@@ -248,9 +262,9 @@ class GearLiftTracker extends AxisCameraVisionTracker
 	 */
 	private static void printCameraFwdToTargetAngle( double angle, Mat output )
 	{
-		Imgproc.putText(output, "C2T:" + new DecimalFormat("#.0").format(angle)+"d", 
+		Imgproc.putText(output, "C2T:" + new DecimalFormat("0.0").format(angle)+"d", 
 				new Point( TEXT_X_OFFSET, TEXT_Y_OFFSET + output.height() * 11.0 / 12.0), 
-				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.green ), TEXT_THICKNESS );
+				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.white ), TEXT_THICKNESS );
 	}
 	
 	/**
@@ -259,9 +273,30 @@ class GearLiftTracker extends AxisCameraVisionTracker
 	 */
 	private static void printCameraToTargetDistance( double distance, Mat output )
 	{
-		Imgproc.putText(output, "DST:" + new DecimalFormat("#.0").format(distance), 
+		Imgproc.putText(output, "DST:" + new DecimalFormat("00.0").format(distance), 
 				new Point( TEXT_X_OFFSET + output.width() / 1.8, TEXT_Y_OFFSET + output.height() * 11.0 / 12.0), 
-				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.green ), TEXT_THICKNESS );
+				Core.FONT_HERSHEY_PLAIN, TEXT_FONT_SCALE, new Scalar( Utility.white ), TEXT_THICKNESS );
+	}
+	
+	private static Mat bridgeOperation( Mat inThreshold, Size bridgeAmount )
+	{
+		final double ERODE_EXTENSION = 2.0;
+		
+		Size erodeAmount = new Size( bridgeAmount.width + ERODE_EXTENSION, bridgeAmount.height + ERODE_EXTENSION );
+		
+		Mat dilateResult = new Mat();
+		Mat erodeResult = new Mat();
+		Mat dilateKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, bridgeAmount);
+		Mat erodeKernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, erodeAmount);
+		
+		Imgproc.dilate( inThreshold, dilateResult, dilateKernel );
+		Imgproc.erode( dilateResult, erodeResult, erodeKernel );
+
+		dilateKernel.release();
+		erodeKernel.release();
+		dilateResult.release();
+		
+		return erodeResult;
 	}
 	
 	private static ArrayList<CollinearLine> findCollinearLines( ArrayList<Polygon> polygons )
@@ -279,6 +314,27 @@ class GearLiftTracker extends AxisCameraVisionTracker
 		return result;
 	}
 	
+	private static TargetCandidate evaluateTargetCandidate( TargetCandidate currentCandidate, 
+			TargetCandidate bestCandidate, double minimumScore )
+	{
+		if ( currentCandidate != null )
+		{
+			if ( currentCandidate.getScore() >= minimumScore )
+			{
+				if ( bestCandidate == null )
+				{
+					return currentCandidate;
+				}
+				else if ( bestCandidate.getScore() < currentCandidate.getScore() )
+				{
+					return currentCandidate;
+				}
+			}
+		}
+		
+		return bestCandidate;
+	}
+	
 	private static TargetCandidate getTargetCandidate( ArrayList<CollinearLine> collinearLines,
 			double cameraDiagonal )
 	{
@@ -289,27 +345,9 @@ class GearLiftTracker extends AxisCameraVisionTracker
 			for ( int j = ( i + 1 ); j < collinearLines.size(); ++j )
 			{
 				TargetCandidate candidate = TargetCandidate.generateTargetCandidate( 
-						collinearLines.get( i ), collinearLines.get( j ), cameraDiagonal, true );
+						collinearLines.get( i ), collinearLines.get( j ), cameraDiagonal, CAMERA_RUNNING_SIDEWAYS );
 				
-				if ( candidate != null )
-				{
-					if ( bestCandidate == null )
-					{
-						bestCandidate = candidate;
-					}
-					else if ( bestCandidate.getScore() < candidate.getScore() )
-					{
-						bestCandidate = candidate;
-					}
-				}
-			}
-		}
-		
-		if ( bestCandidate != null )
-		{
-			if ( bestCandidate.getScore() < TargetCandidate.MIN_SCORE )
-			{
-				return null;
+				bestCandidate = evaluateTargetCandidate( candidate, bestCandidate, TargetCandidate.MIN_SCORE );
 			}
 		}
 		
@@ -330,45 +368,198 @@ class GearLiftTracker extends AxisCameraVisionTracker
 		}
 	}
 	
-	private static ArrayList<Polygon> trackPolygons(Mat camFrame, Mat hlsMask, double cameraDiagonal, boolean drawContours)
+	/**
+	 * @param basePoints Base polygon approximation (lower epsilon value, higher precision/detail)
+	 * @param overlapPoints Simplified, overlapping polygon approximation (higher epsilon value, lower precision/detail)
+	 * @param indices Output list of indices to overlapping points in the base polygon.
+	 */
+	private static int[] findOverlapIndices( Point[] basePoints, Point[] overlapPoints )
 	{
-		final double MIN_ARC_LENGTH = ( cameraDiagonal / 8.0 );
+		List<Integer> indices = new ArrayList<>();
+		int[] result;
+		int i = 0;
 		
-		ArrayList<Polygon> polygons = new ArrayList<>();
-		ArrayList<MatOfPoint> contours = new ArrayList<>();
+		for ( Point overlapPoint : overlapPoints )
+		{
+			int bestIndex = -1;
+			double smallestDistance = 0.0;
+			
+			for ( int j = 0; j < basePoints.length; ++j )
+			{
+				double currentDistance = Utility.getPointsDistance(basePoints[ j ], overlapPoint);
+				
+				if ( ( bestIndex < 0 ) || ( currentDistance < smallestDistance ) )
+				{
+					bestIndex = j;
+					smallestDistance = currentDistance;
+				}
+			}
+			
+			if ( bestIndex >= 0 )
+			{
+				indices.add( bestIndex );
+			}
+		}
+		
+		result = new int[indices.size()];
+		
+		for ( Integer idx : indices )
+		{
+			result[i++] = idx;
+		}
+		
+		return result;
+	}
+	
+	private static TargetCandidate trackTarget(Mat camFrame, Mat hlsMask, double cameraDiagonal, 
+			boolean drawContours, boolean drawPolygons)
+	{
+		TargetCandidate targetCandidate = null;
+
+		ArrayList<Polygon> polygons = new ArrayList<>();	
+		ArrayList<Integer> polyIndices = new ArrayList<>();
+		ArrayList<Double> arcLengths = new ArrayList<>();
+		
+		ArrayList<Polygon> polygonsToDraw = null;
+
+		ArrayList<MatOfPoint> contours = new ArrayList<>();	
 		Mat hierarchy = new Mat();
-        Scalar color = new Scalar( Utility.red );
-        int i = 0;
 		
 		Imgproc.findContours(hlsMask, contours, hierarchy, Imgproc.RETR_TREE, Imgproc.CHAIN_APPROX_SIMPLE);
 		
+		targetCandidate = trackFullTarget( camFrame, contours, hierarchy, polygons, polyIndices, arcLengths, 
+				cameraDiagonal / 8.0, cameraDiagonal, drawContours );
+		
+		if ( targetCandidate == null )
+		{
+			if ( drawPolygons )
+			{
+				polygonsToDraw = new ArrayList<>();
+			}
+			
+			targetCandidate = trackRectangleTarget( camFrame, contours, polygons, polyIndices, arcLengths, polygonsToDraw );
+		}
+		else
+		{
+			polygonsToDraw = polygons;
+			
+			for ( MatOfPoint contour : contours )
+			{
+				contour.release();
+			}
+			
+			contours.clear();
+		}
+		
+		hierarchy.release();
+		
+		if ( drawPolygons )
+		{
+			for ( Polygon poly : polygonsToDraw )
+			{
+				poly.draw( camFrame );
+			}
+		}
+		
+		return targetCandidate;
+	}
+	
+	private static TargetCandidate trackFullTarget( Mat camFrame, ArrayList<MatOfPoint> contours, Mat hierarchy, 
+			ArrayList<Polygon> polygons, ArrayList<Integer> polyIndices, ArrayList<Double> arcLengths,
+			double minimumArcLength, double cameraDiagonal, boolean drawContours )
+	{
+        int contourIndex = 0;
+		ArrayList< CollinearLine > collinearLines = null;
+        
 		for ( MatOfPoint contour : contours )
 		{
 			MatOfPoint2f contour2f = new MatOfPoint2f( contour.toArray() );		
 			MatOfPoint2f approxCurve = new MatOfPoint2f();
 			double arcLength = Imgproc.arcLength(contour2f, true);
 			
-			if ( arcLength >= MIN_ARC_LENGTH )
+			if ( arcLength >= minimumArcLength )
 			{
 				if ( drawContours )
 				{
-					Imgproc.drawContours( camFrame, contours, i, color, 2, 8, hierarchy, 0, new Point() );
+					Imgproc.drawContours( camFrame, contours, contourIndex, new Scalar( Utility.red ), 2, 8, hierarchy, 0, new Point() );
 				}
 				
 				Imgproc.approxPolyDP(contour2f, approxCurve, 0.04 * arcLength, true);
 				
-				polygons.add( Polygon.createPolygon( approxCurve.toList() ) );
+				polygons.add( new Polygon( approxCurve.toList() ) );
+				polyIndices.add( contourIndex );
+				arcLengths.add( arcLength );
+			}
+			else
+			{
+				contour.release();
 			}
 			
-			++i;
+			++contourIndex;
 			
-			contour.release();
 			contour2f.release();
 			approxCurve.release();
 		}
 		
-		hierarchy.release();
+		collinearLines = findCollinearLines( polygons );		
+		return getTargetCandidate( collinearLines, cameraDiagonal );
+	}
+	
+	private static TargetCandidate trackRectangleTarget( Mat camFrame, ArrayList<MatOfPoint> contours, ArrayList<Polygon> polygons, 
+			ArrayList<Integer> polyIndices, ArrayList<Double> arcLengths, ArrayList<Polygon> polygonsToDraw )
+	{
+		TargetCandidate bestTargetCandidate = null;
 		
-		return polygons;
+		for ( int i = 0; ( i < polygons.size() ) && ( i < polyIndices.size() ) && ( i < arcLengths.size() ); ++i )
+		{
+			MatOfPoint contour = contours.get(polyIndices.get(i));
+			MatOfPoint2f contour2f = new MatOfPoint2f( contour.toArray() );
+			
+			MatOfInt hullIndices = new MatOfInt();
+			MatOfPoint2f approxCurve = new MatOfPoint2f();
+			MatOfPoint overlapPolygon;
+			
+			int[] overlapIndicesArray = null;
+			Point[] basePolygonArray;
+			Point[] overlapPolygonArray;
+			
+			Polygon newPolygon;
+			
+			Imgproc.approxPolyDP(contour2f, approxCurve, 0.01/*0.00875/*0.0075*/ * arcLengths.get(i), true); // Base	
+			basePolygonArray = approxCurve.toArray();
+			
+			overlapPolygonArray = polygons.get(i).toPointsArray();
+			overlapPolygon = new MatOfPoint( overlapPolygonArray );
+			
+			Imgproc.convexHull(overlapPolygon, hullIndices);
+			overlapIndicesArray = findOverlapIndices(basePolygonArray, overlapPolygonArray);
+			
+			if ( overlapIndicesArray.length >= 4 )
+			{
+				newPolygon = Polygon.constructPotentialTargetRectangle( basePolygonArray, overlapPolygonArray, 
+						hullIndices.toArray(), overlapIndicesArray, camFrame );
+				
+				if ( newPolygon != null )
+				{
+					TargetCandidate currentCandidate = TargetCandidate.generateTargetCandidate( 
+							newPolygon, CAMERA_RUNNING_SIDEWAYS );
+					
+					bestTargetCandidate = evaluateTargetCandidate( currentCandidate, bestTargetCandidate, TargetCandidate.MIN_SCORE );
+					
+					if ( polygonsToDraw != null )
+					{
+						polygonsToDraw.add( newPolygon );
+					}
+				}
+			}
+			
+			overlapPolygon.release();
+			approxCurve.release();
+			hullIndices.release();			
+			contour2f.release();
+			contour.release();
+		}
+		
+		return bestTargetCandidate;
 	}
 }

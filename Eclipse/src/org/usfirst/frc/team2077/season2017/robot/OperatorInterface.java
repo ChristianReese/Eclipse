@@ -7,6 +7,7 @@ import org.usfirst.frc.team2077.season2017.commands.FieldRelativeSwitch;
 import org.usfirst.frc.team2077.season2017.commands.GearRest;
 import org.usfirst.frc.team2077.season2017.commands.GearRotate;
 import org.usfirst.frc.team2077.season2017.commands.MoveRelative;
+import org.usfirst.frc.team2077.season2017.commands.OrientRobotToTarget;
 import org.usfirst.frc.team2077.season2017.commands.PickUp;
 import org.usfirst.frc.team2077.season2017.commands.ShimyLeft;
 import org.usfirst.frc.team2077.season2017.commands.ShimyRight;
@@ -37,7 +38,8 @@ public class OperatorInterface {
 			backupGearButton = new JoystickButton(xbox_,3),
 			switchDirectionButton = new JoystickButton(xbox_, 4),
 			shimyLeftButton = new JoystickButton(xbox_, 5),
-			shimyRightButton = new JoystickButton(xbox_, 6);
+			shimyRightButton = new JoystickButton(xbox_, 6),
+			visionTrackerButton = new JoystickButton(xbox_, 10);
 	
     public OperatorInterface()
     {
@@ -67,6 +69,7 @@ public class OperatorInterface {
 		//spinLift.whileHeld(new Climb(1));
 		//slowSpinLift.whileHeld(new Climb(.5));
         
+		visionTrackerButton.whileHeld( new OrientRobotToTarget() );
     }
     
     public double getNorthSouth()

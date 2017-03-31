@@ -2,6 +2,7 @@ package org.usfirst.frc.team2077.season2017.subsystems;
 
 
 import org.usfirst.frc.team2077.season2017.robot.AngleSensor;
+import org.usfirst.frc.team2077.season2017.robot.RobotMap;
 
 import com.ctre.CANTalon;
 
@@ -26,10 +27,21 @@ public class PizzaBot implements MecanumHardware {
     private static final double motorKD = preferences_.getDouble("PizzaBot_kDmotor", 0.0);
     private static final double motorKF = preferences_.getDouble("PizzaBot_kFmotor", 0.39);
 
-    private static final double angleKP = preferences_.getDouble("PizzaBot_kPangle", 0.01);
-    private static final double angleKI = preferences_.getDouble("PizzaBot_kIangle", 0.0);
-    private static final double angleKD = preferences_.getDouble("PizzaBot_kDangle", 0.001);
-    private static final double angleKF = preferences_.getDouble("PizzaBot_kFangle", 0.0);
+    private static final double angleKP_Init = 
+    		preferences_.getDouble(RobotMap.HEADING_P_KEY, RobotMap.HEADING_DEFAULT_P);
+    //preferences_.getDouble("PizzaBot_kPangle", 0.01);
+    
+    private static final double angleKI_Init = 
+    		preferences_.getDouble(RobotMap.HEADING_I_KEY, RobotMap.HEADING_DEFAULT_I);
+    //preferences_.getDouble("PizzaBot_kIangle", 0.0);
+    
+    private static final double angleKD_Init = 
+    		preferences_.getDouble(RobotMap.HEADING_D_KEY, RobotMap.HEADING_DEFAULT_D);
+    //preferences_.getDouble("PizzaBot_kDangle", 0.001);
+    
+    private static final double angleKF_Init = 
+    		preferences_.getDouble(RobotMap.HEADING_F_KEY, RobotMap.HEADING_DEFAULT_F);
+    //preferences_.getDouble("PizzaBot_kFangle", 0.0);
 
     private final CANTalon[] motors_ = new CANTalon[4];
     private final AngleSensor angleSensor_ = new AngleSensor();
@@ -49,7 +61,7 @@ public class PizzaBot implements MecanumHardware {
 			motors_[i].changeControlMode(CANTalon.TalonControlMode.Speed);
 		}
 		headingPID_ = new PIDController(
-			angleKP, angleKI, angleKD, angleKF,
+			angleKP_Init, angleKI_Init, angleKD_Init, angleKF_Init,
 			angleSensor_.headingPIDSource_,
 			new PIDOutput() { // dummy output, PID will be read directly
 				@Override

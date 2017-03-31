@@ -76,6 +76,33 @@ public class Robot extends IterativeRobot {
 		if(!prefs.containsKey(RobotMap.SLOW_CLIMBER_TIME_KEY))
 			prefs.putDouble(RobotMap.SLOW_CLIMBER_TIME_KEY, RobotMap.SLOW_CLIMBER_TIME_DEFAULT);
 
+		if(!prefs.containsKey(RobotMap.HEADING_P_KEY))
+			prefs.putDouble(RobotMap.HEADING_P_KEY, RobotMap.HEADING_DEFAULT_P);
+		if(!prefs.containsKey(RobotMap.HEADING_I_KEY))
+			prefs.putDouble(RobotMap.HEADING_I_KEY, RobotMap.HEADING_DEFAULT_I);
+		if(!prefs.containsKey(RobotMap.HEADING_D_KEY))
+			prefs.putDouble(RobotMap.HEADING_D_KEY, RobotMap.HEADING_DEFAULT_D);
+		if(!prefs.containsKey(RobotMap.HEADING_F_KEY))
+			prefs.putDouble(RobotMap.HEADING_F_KEY, RobotMap.HEADING_DEFAULT_F);
+
+		if(!prefs.containsKey(RobotMap.T2C_P_KEY))
+			prefs.putDouble(RobotMap.T2C_P_KEY, RobotMap.T2C_DEFAULT_P);
+		if(!prefs.containsKey(RobotMap.T2C_I_KEY))
+			prefs.putDouble(RobotMap.T2C_I_KEY, RobotMap.T2C_DEFAULT_I);
+		if(!prefs.containsKey(RobotMap.T2C_D_KEY))
+			prefs.putDouble(RobotMap.T2C_D_KEY, RobotMap.T2C_DEFAULT_D);
+		if(!prefs.containsKey(RobotMap.T2C_F_KEY))
+			prefs.putDouble(RobotMap.T2C_F_KEY, RobotMap.T2C_DEFAULT_F);
+
+		if(!prefs.containsKey(RobotMap.DIST_P_KEY))
+			prefs.putDouble(RobotMap.DIST_P_KEY, RobotMap.T2C_DEFAULT_P);
+		if(!prefs.containsKey(RobotMap.DIST_I_KEY))
+			prefs.putDouble(RobotMap.DIST_I_KEY, RobotMap.T2C_DEFAULT_I);
+		if(!prefs.containsKey(RobotMap.DIST_D_KEY))
+			prefs.putDouble(RobotMap.DIST_D_KEY, RobotMap.T2C_DEFAULT_D);
+		if(!prefs.containsKey(RobotMap.DIST_F_KEY))
+			prefs.putDouble(RobotMap.DIST_F_KEY, RobotMap.T2C_DEFAULT_F);
+
 		switch( RobotMap.ROBOT_PLATFORM )
 		{
 		case RP_ECLIPSE:

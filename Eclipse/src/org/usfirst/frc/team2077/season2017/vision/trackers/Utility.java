@@ -3,6 +3,10 @@ package org.usfirst.frc.team2077.season2017.vision.trackers;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 
+import org.usfirst.frc.team2077.season2017.vision.trackers.LineSegment;
+import org.usfirst.frc.team2077.season2017.vision.trackers.Utility;
+import org.usfirst.frc.team2077.season2017.vision.trackers.Utility.MutableDouble;
+
 public class Utility 
 {
 	// For acos(x): Index = floor((x+1)*arcCosTable.length/2)
@@ -140,10 +144,20 @@ public class Utility
 		return ( ( x1 * x2 ) + ( y1 * y2 ) );
 	}
 	
+	public static double dot( Point pt1, Point pt2 )
+	{
+		return ( ( pt1.x * pt2.x ) + ( pt1.y * pt2.y ) );
+	}
+	
 	public static double getPointsDistance( Point pt1, Point pt2 )
 	{
 		double dx = pt2.x - pt1.x;
 		double dy = pt2.y - pt1.y;
+		
+		if ( ( dx == 0.0 ) && ( dy == 0.0 ) )
+		{
+			return 0.0;
+		}
 		
 		return Math.sqrt( dx*dx + dy*dy );
 	}
@@ -384,6 +398,23 @@ public class Utility
       else {  // test for regular intersection
         return ((a1 > 0.0) ^ (a2 > 0.0)) && ((a3 > 0.0) ^ (a4 > 0.0));
       } 
+    }
+    
+    /**
+     * If ls1 and ls2 intersect, pt2 (their second points) will be swapped between them.
+     */
+    public static void correctIntersectingLSPair( LineSegment ls1, LineSegment ls2 )
+    {
+    	Point pt1 = ls1.getPt1();
+    	Point pt2 = ls1.getPt2();
+    	Point pt3 = ls2.getPt1();
+    	Point pt4 = ls2.getPt2();
+    	
+    	if ( linesIntersect( pt1.x, pt1.y, pt2.x, pt2.y, pt3.x, pt3.y, pt4.x, pt4.y ) )
+    	{
+    		ls1.set( pt1, pt4 );
+    		ls2.set( pt3, pt2 );
+    	}
     }
 	
 	public static void drawPoint( Point point, double[] color, int size, Mat camFrame )

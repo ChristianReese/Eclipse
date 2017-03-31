@@ -379,4 +379,12 @@ public class MecanumDrive extends Drive {
 	protected void initDefaultCommand() {
 		setDefaultCommand(new OperatorDrive());
 	}
+
+	@Override
+	public void setHeadingPIDValues(double p, double i, double d, double f) {
+		if ( headingPID_ != null )
+		{
+			headingPID_.setPID(p, i, d, f);
+		}
+	}
 }

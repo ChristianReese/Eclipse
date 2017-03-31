@@ -160,4 +160,13 @@ public abstract class Drive extends Subsystem {
 	 * @return
 	 */
 	public abstract double robotRotationDegreesToDistance(double degrees);
+	
+	/**
+	 * Re-set the PID values for heading adjustment (to use for tuning without having to reset the robot).
+	 * @param p P-value
+	 * @param i I-value
+	 * @param d D-value
+	 * @param f F-value
+	 */
+	public abstract void setHeadingPIDValues( double p, double i, double d, double f );
 }
